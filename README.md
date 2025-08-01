@@ -54,7 +54,7 @@ Crop_Recommendation_System/
 │   ├── District_data/       # Processed district/state crop data
 │   ├── Saved_models/        # Models used in Streamlit
 │   ├── Scaler/              # Scaler used in Streamlit
-│   └── Utils/               # Helper Python modules/scripts
+│   └── Utils/               # Helper Python notebooks
 │
 ├── requirements.txt
 └── README.md
