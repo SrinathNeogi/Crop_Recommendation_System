@@ -7,27 +7,27 @@ from PIL import Image
 from collections import Counter
 import warnings
 
-# --- Must be first Streamlit command ---
-st.set_page_config(page_title="Crop Recommendation", page_icon="🌱")
+# --- Streamlit Page Config ---
+st.set_page_config(page_title="Crop Recommendation")
 
 warnings.filterwarnings('ignore')
 
-# --- Base Path Setup ---
+# --- Base Directory ---
 base_path = os.path.abspath(os.path.dirname(__file__))
 
-# --- Load Resources with Absolute Paths ---
+# --- Load Scaler ---
 scaler = joblib.load(os.path.join(base_path, 'Scaler', 'scaler.pkl'))
 
+# --- Load Label Mapping ---
 label_map = pd.read_csv(os.path.join(base_path, "Label_numbers.csv"))
 label_mapping = dict(zip(label_map['Number'], label_map['Name']))
 
+# --- Load Dataset ---
 district_df = pd.read_csv(os.path.join(base_path, 'District_data', 'state_capital_crop_data.csv'))
-
-# Define feature columns and clean data
 feature_cols = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
 district_df.dropna(subset=feature_cols, inplace=True)
 
-# Load saved models
+# --- Load Models ---
 model_folder = os.path.join(base_path, 'Saved_models')
 models = {
     file.replace('.pkl', ''): joblib.load(os.path.join(model_folder, file))
@@ -35,13 +35,13 @@ models = {
 }
 
 # --- Streamlit UI ---
-st.title("🌾 Crop Recommendation System")
-st.markdown("### Predict the best crop for your region based on soil and climate data.")
+st.title("Crop Recommendation System")
+st.subheader("Predict the best crop based on your region's data.")
 
 # --- User Input ---
 state = st.selectbox("Select State", sorted(district_df['state'].unique()))
-districts = district_df[district_df['state'] == state]['capital_district'].unique()
-district = st.selectbox("Select District", sorted(districts))
+districts = sorted(district_df[district_df['state'] == state]['capital_district'].unique())
+district = st.selectbox("Select District", districts)
 
 if st.button("Predict Crop"):
     input_row = district_df[
@@ -50,42 +50,39 @@ if st.button("Predict Crop"):
     ]
 
     if input_row.empty:
-        st.error("🚫 No data found for the selected state and district.")
+        st.error("No data found for the selected state and district.")
     else:
         input_features = input_row[feature_cols].values
         input_scaled = scaler.transform(input_features)
 
-        # Predict with all models
-        predictions = {}
-        for model_name, model in models.items():
-            pred = model.predict(input_scaled)[0]
-            predictions[model_name] = pred
+        # Predict using all models
+        predictions = {
+            model_name: model.predict(input_scaled)[0]
+            for model_name, model in models.items()
+        }
 
         # Majority Voting
-        votes = Counter(predictions.values())
-        top_label, _ = votes.most_common(1)[0]
+        top_label = Counter(predictions.values()).most_common(1)[0][0]
         top_crop_name = label_mapping.get(top_label, "Unknown Crop")
 
-        # Display Result
+        # Output
         st.markdown(
-            f"<h2 style='text-align: center; color: green;'>🌾 Recommended Crop: <b>{top_crop_name.capitalize()}</b></h2>",
+            f"<h2 style='text-align: center; color: green;'>Recommended Crop: <b>{top_crop_name}</b></h2>",
             unsafe_allow_html=True
         )
 
-        # Show Crop Image
+        # Image
         image_folder = os.path.join(base_path, "Crop_images")
-        image_path_jpg = os.path.join(image_folder, f"{top_crop_name}.jpg")
-        image_path_jpeg = os.path.join(image_folder, f"{top_crop_name}.jpeg")
-
-        if os.path.exists(image_path_jpg):
-            st.image(image_path_jpg, caption=top_crop_name.capitalize(), use_container_width=True)
-        elif os.path.exists(image_path_jpeg):
-            st.image(image_path_jpeg, caption=top_crop_name.capitalize(), use_container_width=True)
+        for ext in ['jpg', 'jpeg', 'png']:
+            image_path = os.path.join(image_folder, f"{top_crop_name}.{ext}")
+            if os.path.exists(image_path):
+                st.image(image_path, caption=top_crop_name, use_container_width=True)
+                break
         else:
-            st.warning("🚫 No image available for this crop.")
+            st.warning("Image not available for this crop.")
 
-        # Expandable section for all model votes
-        with st.expander("🔍 See predictions from each model"):
+        # Model votes
+        with st.expander("Model-wise Predictions"):
             for model_name, label in predictions.items():
                 crop_name = label_mapping.get(label, "Unknown")
-                st.write(f"**{model_name}** ➤ {crop_name} (Label: {label})")
+                st.write(f"{model_name}: {crop_name} (Label: {label})")
