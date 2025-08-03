@@ -1,6 +1,6 @@
 # 🌾 Crop Recommendation System
 
-A machine learning–powered Streamlit web application that recommends the most suitable crop to grow based on soil and climatic conditions of state capital districts across India.
+A machine learning–powered Streamlit web application that recommends the most suitable crop to grow based climatic conditions of state capital districts across India.
 
 ---
 
