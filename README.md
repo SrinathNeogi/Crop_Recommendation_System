@@ -12,11 +12,11 @@ This project uses soil nutrient data, weather conditions, and rainfall statistic
 
 ## 🚀 Features
 
-- 🌡️ Scales soil and climate features for improved accuracy
-- 🧠 Uses ensemble of ML models (Random Forest, KNN, SVM, Logistic Regression, XGBoost etc.)
+- 🌡️ Scales climate features for improved accuracy
+- 🧠 Uses ensemble of ML models (Random Forest, KNN, SVM, Logistic Regression, XGBoost)
 - 📸 Displays crop image after prediction
 - 🌍 Easy selection by state and district
-- 📊 Shows predictions from individual models (via expandable section)
+- 📊 Shows predictions from individual models 
 - 🔎 Clean and responsive Streamlit interface
 
 ---
