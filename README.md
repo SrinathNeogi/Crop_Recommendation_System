@@ -6,7 +6,7 @@ A machine learning–powered Streamlit web application that recommends the most 
 
 ## 📌 Overview
 
-This project uses soil nutrient data, weather conditions, and rainfall statistics to predict the best crop using multiple ML models and ensemble voting. The app provides crop recommendations along with a relevant image, making it intuitive and user-friendly.
+This project uses weather conditions, and rainfall statistics to predict the best crop using multiple ML models and ensemble voting. The app provides crop recommendations along with a relevant image, making it intuitive and user-friendly.
 
 ---
 
